@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TextField from '@mui/material/TextField';
 import { Button } from '@mui/material';
-import GeoDatafromZip from "./Components/geoDataFromZip";
 import CurrentWeatherLatLon from "./Components/CurrentWeatherLatLon";
 import Display24HrForcast from "./Components/Display24HrForcast";
 import DailyObject from "./Components/JSONFormat/DailyObject.json";
@@ -10,65 +9,62 @@ import WeeklyObject from "./Components/JSONFormat/WeeklyObject.json";
 import IconButton from '@mui/material/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import "./Head.css"
+import GeoDataFromZip from "./Components/geoDataFromZip";
 
-function Head(API_KEY: string | undefined) {
+function Head(API_KEY: string) {
   const [zipcode, setZipcode] = useState('25703')
+  const [zipCodeFieldValue, setZipCodeFieldValue] = useState('25703')
   const [timeStamp, setTimeStamp] = useState(Date().toLocaleString())
-  const geoData = GeoDatafromZip(API_KEY, zipcode);
-  const WeatherData = CurrentWeatherLatLon(API_KEY, geoData.lat, geoData.lon)
+  const [weatherData, setWeatherData] = useState({
+    "lat": 0,
+    "lon": 0,
+    "hourly": DailyObject,
+    "daily": WeeklyObject,
+  })
   const [Daily, setDaily] = useState(WeeklyObject)
   const [Hourly, setHourly] = useState(DailyObject)
-  const [refreshState, SetrefreshState] = useState(false)
 
-  let state = {
-    holdzip: ''
+
+  const GetData = async (api_key: string, zip: string) => {
+    await GeoDataFromZip(api_key, zip)
+    .then((data) => { return CurrentWeatherLatLon(api_key, data.lat, data.lon) })
+    .then((data) => { setWeatherData(data) })
   }
 
   useEffect(() => {
-    SetrefreshState(true)
-  })
-
-  const handelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    state.holdzip = (event.target.value);
-  };
-
-  useEffect(() => {
+    GetData(API_KEY, zipcode)
     setTimeStamp(Date().toLocaleString())
-    setDaily(WeatherData.daily)
-    setHourly(WeatherData.hourly)
-    SetrefreshState(false)
-  }, [zipcode, refreshState]);
+    setDaily(weatherData.daily)
+    setHourly(weatherData.hourly)
+  }, [zipcode, weatherData]);
 
   
-
   return (
     <div className="background">
       <p>24Hour Forcast</p>
-      {Display24HrForcast(Hourly)}
+        {Display24HrForcast(Hourly)}
       <p>7day Forcast</p>
-      {Display7DayForcast(Daily)}
+        {Display7DayForcast(Daily)}
       <div>
-        {geoData.zip}
+        {zipcode}
         {timeStamp}
-        <IconButton onClick={() => { SetrefreshState(true) }} >
+        <IconButton onClick={() => { GetData(API_KEY, zipcode)}} >
           <RefreshIcon />
         </IconButton>
       </div>
       <TextField className='textbox'
-        onChange={handelChange} type="text" id="zipcode" />
+        onChange={(v) => { setZipCodeFieldValue(v.target.value) }} type="text" id="zipcode" />
       <p>
         <Button style={{
-
           backgroundColor: "white",
           borderRadius: 5,
         }}
-          onClick={(e) => {
-            setZipcode(state.holdzip)
-          }} variant="outlined">
+        onClick={() => { setZipcode(zipCodeFieldValue) }} variant="outlined">
           Zipcode
         </Button>
       </p>
-    </div>)
+    </div>
+  )
 }
 
 export default Head;

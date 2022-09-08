@@ -5,7 +5,7 @@ import Head from './Head';
 
 function App() {
 
-  const API_KEY = process.env.REACT_APP_OPENWEATHER_API;
+  const API_KEY = process.env.REACT_APP_OPENWEATHER_API || '';
   
   return (
     <div>
