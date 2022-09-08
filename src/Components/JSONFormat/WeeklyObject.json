@@ -1,0 +1,24 @@
+[
+ {
+  "dt": 1,
+  "temp": {
+   "day": 0,
+   "eve": 0,
+   "max": 0,
+   "min": 0,
+   "morn": 0,
+   "night": 0
+  }
+ },
+ {
+  "dt": 2,
+  "temp": {
+   "day": 0,
+   "eve": 0,
+   "max": 0,
+   "min": 0,
+   "morn": 0,
+   "night": 0
+ }
+}
+]
